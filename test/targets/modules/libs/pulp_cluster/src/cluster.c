@@ -5,12 +5,13 @@ static DmaTransfer dma_transfer_;
 void offload_to_pulp_cluster(MatchCtx* ctx, void (inner_function)(unsigned int* args_inner_function),
                                 unsigned int* args){
     #ifndef GAP_SDK
-    set_pulp_open_l1_pt(pmsis_l1_malloc(L1_SCRATCHPAD_SIZE));
+    void* l1_scratch = pmsis_l1_malloc(L1_SCRATCHPAD_SIZE);
+    set_pulp_open_l1_pt(l1_scratch);
     #endif
     pi_cluster_task(&cluster_task,inner_function,args);
     pi_cluster_send_task_to_cl(&cluster_dev, &cluster_task);
     #ifndef GAP_SDK
-    pmsis_l1_malloc_free( get_pulp_open_l1_pt(), L1_SCRATCHPAD_SIZE);
+    pmsis_l1_malloc_free(l1_scratch, L1_SCRATCHPAD_SIZE);
     #endif
 }
 
